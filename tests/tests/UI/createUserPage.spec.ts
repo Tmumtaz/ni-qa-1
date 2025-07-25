@@ -19,12 +19,12 @@ test.describe("Cross-Browser Testing", () => {
   });
 
   test.describe("User Interface", () => {
-    test("renders Home Page + User Form by Default", async () => {
+    test("CU-001 - renders Home Page + User Form by Default", async () => {
       await page.goto(process.env.BASE_URL);
       await createUserForm.verifyUIElements();
     });
 
-    test("Nav Tabs are active on Home Page", async () => {
+    test("CU-002 - Nav Tabs are active on Home Page", async () => {
       await page.goto(process.env.BASE_URL);
       await createUserForm.verifyNavTabActive(createUserForm.createUserTab);
     });
@@ -32,7 +32,7 @@ test.describe("Cross-Browser Testing", () => {
 
   test.describe("Form Validations", async () => {
     //User name should be more than 2 characters
-    test("User name should be more than 2 characters", async () => {
+    test("FV-001 - User name should be more than 2 characters", async () => {
       await createUserForm.fillForm({
         name: "te",
         email: "test@example.com",
@@ -42,7 +42,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.userNameRequiredNotice).toBeVisible();
     });
 
-    test("User name already Exists", async () => {
+    test("FV-002 - User name already Exists", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example.com",
@@ -52,8 +52,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.userNameExistsError).toBeVisible();
     });
 
-    //Email format
-    test("User should not be able to register with invalid email", async () => {
+    test("FV-003 - User should not be able to register with invalid email", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example",
@@ -63,8 +62,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.emailRequiredNotice).toBeVisible();
     });
 
-    //Email is taken
-    test("User should not be able to register with email that already exists", async () => {
+    test("FV-004 - User should not be able to register with email that already exists", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example.com",
@@ -74,8 +72,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.emailExistsError).toBeVisible();
     });
 
-    //Phone Format
-    test("User should not be able to register with invalid phone number", async () => {
+    test("FV-005 - User should not be able to register with invalid phone number", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example.com",
@@ -87,8 +84,17 @@ test.describe("Cross-Browser Testing", () => {
   });
 
   test.describe("Error Message Display", () => {
-    test("Should get a required error if all fields left empty", async () => {
-      await createUserForm.fillForm();
+    test.beforeEach(async () => {
+      await page.goto(process.env.BASE_URL);
+    })
+    test("ER-001 - Should get a required error if all fields left empty", async () => {
+
+      await page.waitForTimeout(1000);
+        await createUserForm.fillForm({
+        name: "",
+        email: "",
+        phone: "",
+      });
       await createUserForm.saveButton.click();
 
       // Error Messages
@@ -97,7 +103,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.phoneRequiredNotice).toBeVisible();
     });
 
-    test("Submit with Empty Name Only", async () => {
+    test("ER-002 - Submit with Empty Name Only", async () => {
       await createUserForm.fillForm({
         name: "",
         email: "test@example.com",
@@ -110,7 +116,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
     });
 
-    test("Submit with Empty Email only", async () => {
+    test("ER-003 - Submit with Empty Email only", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "",
@@ -123,7 +129,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
     });
 
-    test("Submit with Empty Phone only", async () => {
+    test("ER-004 - Submit with Empty Phone only", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example.com",
@@ -136,7 +142,7 @@ test.describe("Cross-Browser Testing", () => {
       await expect(createUserForm.phoneRequiredNotice).toBeVisible();
     });
 
-    test("Shows Server Error when POST request fails", async () => {
+    test("ER-005 - Shows Server Error when POST request fails", async () => {
       await createUserForm.fillForm({
         name: "test",
         email: "test@example.com",
@@ -156,7 +162,7 @@ test.describe("Cross-Browser Testing", () => {
     });
   });
 
-  test("Form Fields Should Clear After Valid Submission", async () => {
+  test("ER-006 - Form Fields Should Clear After Valid Submission", async () => {
     await createUserForm.fillForm({
       name: "test",
       email: "test@example.com",
