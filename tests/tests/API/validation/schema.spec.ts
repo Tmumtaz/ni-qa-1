@@ -15,7 +15,7 @@ test.describe("Concurrent Operations", () => {
     await apiContext.dispose();
   });
 
-  test('Validate structure of user list response', async () => {
+  test('SCH-001 - Validate structure of user list response', async () => {
   const res = await apiContext.get('/api/id');
   expect(res.ok()).toBeTruthy();
   expect(res.status()).toBe(200);
@@ -34,7 +34,7 @@ test.describe("Concurrent Operations", () => {
   }
 });
 
-test('Validate structure of single user response', async () => {
+test('SCH-002 - Validate structure of single user response', async () => {
   const user = generateUserData();
   const createRes = await apiContext.post('/api/save', { data: user });
   const created = await createRes.json();
@@ -54,7 +54,7 @@ test('Validate structure of single user response', async () => {
   });
 });
 
-test('Validate error response structure', async () => {
+test('SCH-002 - Validate error response structure', async () => {
   const res = await apiContext.get('/api/id/nonexistentid');
   expect(res.status()).toBe(404);
 

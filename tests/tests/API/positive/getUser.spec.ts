@@ -15,7 +15,7 @@ test.describe("GET", () => {
     await apiContext.dispose();
   });
 
-  test("TC002 - Get User List", async () => {
+  test("PC-G-001 - Get User List", async () => {
     const response = await apiContext.get("/api/id");
     expect(response.status()).toBe(200);
 
@@ -24,7 +24,7 @@ test.describe("GET", () => {
     expect(body.length).toBeGreaterThan(0);
   });
 
-  test("TC003 - Get User by Valid ID and Verify Details", async () => {
+  test("PC-G-001 - Get User by Valid ID and Verify Details", async () => {
     // Step 1: Get list of users
     const listResponse = await apiContext.get("/api/id");
     expect(listResponse.status()).toBe(200);

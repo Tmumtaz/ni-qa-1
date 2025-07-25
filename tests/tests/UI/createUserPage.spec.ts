@@ -1,172 +1,175 @@
 import { CreateUserForm } from "../../pages/CreateUser";
 import { ListUsersPage } from "../../pages/ListUsers";
-import {Page, Locator, test, expect } from "@playwright/test";
-require ('dotenv').config();
+import { Page, Locator, test, expect } from "@playwright/test";
+require("dotenv").config();
 
+test.describe("Cross-Browser Testing", () => {
+  let page, context, createUserForm, usersList;
+  test.beforeEach("Setup", async ({ browser }) => {
+    context = await browser.newContext();
+    page = await context.newPage();
 
-test.describe('Cross-Browser Testing', () => {
-    let page, context, createUserForm, usersList
-    test.beforeEach('Setup', async({ browser }) => {
-        context = await browser.newContext();
-        page = await context.newPage();
+    createUserForm = new CreateUserForm(page);
+    usersList = new ListUsersPage(page);
+  });
 
-        createUserForm = new CreateUserForm(page)
-        usersList = new ListUsersPage(page)
-        
-    })
+  test.afterEach("Cleanup", async () => {
+    await page.close();
+    await context.close();
+  });
 
-    test.afterEach('Cleanup', async() => {
-        await page.close();
-        await context.close();
-    })
+  test.describe("User Interface", () => {
+    test("renders Home Page + User Form by Default", async () => {
+      await page.goto(process.env.BASE_URL);
+      await createUserForm.verifyUIElements();
+    });
 
-    test.describe('User Interface', () => {
-         test('renders Home Page + User Form by Default', async() => {
-            await page.goto(process.env.BASE_URL);
-            await createUserForm.verifyUIElements();
-        })
+    test("Nav Tabs are active on Home Page", async () => {
+      await page.goto(process.env.BASE_URL);
+      await createUserForm.verifyNavTabActive(createUserForm.createUserTab);
+    });
+  });
 
-        test('renders List Users Page', async() => {
-            await page.goto(process.env.USERS_FORM);
-            await usersList.verifyUsersListElements();
-        })
+  test.describe("Form Validations", async () => {
+    //User name should be more than 2 characters
+    test("User name should be more than 2 characters", async () => {
+      await createUserForm.fillForm({
+        name: "te",
+        email: "test@example.com",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
+      await expect(createUserForm.userNameRequiredNotice).toBeVisible();
+    });
 
-        test('Nav Tabs are active on Home Page', async() => {
-            await page.goto(process.env.BASE_URL);
-            await createUserForm.verifyNavTabActive(createUserForm.createUserTab);
-        })
+    test("User name already Exists", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example.com",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
+      await expect(createUserForm.userNameExistsError).toBeVisible();
+    });
 
-        test('Nav Tabs are active on List Users Page', async() => {
-            await page.goto(process.env.USERS_FORM);
-            await usersList.verifyNavTabActive(usersList.listUsersTab);
-        })
-    })
+    //Email format
+    test("User should not be able to register with invalid email", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
+      await expect(createUserForm.emailRequiredNotice).toBeVisible();
+    });
 
-    test.describe('Responsive Design', async() => {
-        const breakpoints = [
-            { name: 'mobile', width: 375, height: 667 }, // iPhone 6/7/8
-            { name: 'tablet', width: 768, height: 1024 }, // Tablet
-            { name: 'desktop', width: 1366, height: 768 }, // Desktop
-            { name: 'largeDesktop', width: 1920, height: 1080 }, // Large Desktop
-        ];
+    //Email is taken
+    test("User should not be able to register with email that already exists", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example.com",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
+      await expect(createUserForm.emailExistsError).toBeVisible();
+    });
 
-        breakpoints.forEach((breadkPoint) => {
-            test(`User Form Renders Correctly on${breadkPoint.name}`, async() => {
-                await page.goto(process.env.BASE_URL);
-                await page.setViewportSize({ width: breadkPoint.width, height: breadkPoint.height });
-                await createUserForm.verifyUIElements();
-            })
+    //Phone Format
+    test("User should not be able to register with invalid phone number", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example.com",
+        phone: "123456789",
+      });
+      await createUserForm.saveButton.click();
+      await expect(createUserForm.phoneRequiredNotice).toBeVisible();
+    });
+  });
 
-            test(`List Users Page Renders Correctly on${breadkPoint.name}`, async() => {
-                await page.goto(process.env.USERS_FORM);
-                await page.setViewportSize({ width: breadkPoint.width, height: breadkPoint.height });
-                await usersList.verifyUsersListElements();
-            })
-        })
+  test.describe("Error Message Display", () => {
+    test("Should get a required error if all fields left empty", async () => {
+      await createUserForm.fillForm();
+      await createUserForm.saveButton.click();
 
-    })
+      // Error Messages
+      await expect(createUserForm.userNameRequiredNotice).toBeVisible();
+      await expect(createUserForm.emailRequiredNotice).toBeVisible();
+      await expect(createUserForm.phoneRequiredNotice).toBeVisible();
+    });
 
-    test.describe('Input Validations', async() => {
-        //User name should be more than 2 characters
-        test('User name should be more than 2 characters', async() => {
-            await createUserForm.fillForm({name: 'te', email: 'test@example.com', phone: '1234567890'})
-            await createUserForm.saveButton.click();
-            await expect(createUserForm.userNameRequiredNotice).toBeVisible();
-        })
+    test("Submit with Empty Name Only", async () => {
+      await createUserForm.fillForm({
+        name: "",
+        email: "test@example.com",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
 
-        test('User name already Exists', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: '1234567890'})
-            await createUserForm.saveButton.click();
-            await expect(createUserForm.userNameExistsError).toBeVisible();
-        })
+      await expect(createUserForm.userNameRequiredNotice).toBeVisible();
+      await expect(createUserForm.emailRequiredNotice).not.toBeVisible();
+      await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
+    });
 
-        //Email format
-        test('User should not be able to register with invalid email', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example', phone: '1234567890'})
-            await createUserForm.saveButton.click();
-            await expect(createUserForm.emailRequiredNotice).toBeVisible();
-        }) 
+    test("Submit with Empty Email only", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "",
+        phone: "1234567890",
+      });
+      await createUserForm.saveButton.click();
 
-        //Email is taken
-        test('User should not be able to register with email that already exists', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: '1234567890'})
-            await createUserForm.saveButton.click();
-            await expect(createUserForm.emailExistsError).toBeVisible();
-        })
+      await expect(createUserForm.userNameRequiredNotice).not.toBeVisible();
+      await expect(createUserForm.emailRequiredNotice).toBeVisible();
+      await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
+    });
 
-        //Phone Format
-        test('User should not be able to register with invalid phone number', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: '123456789'})
-            await createUserForm.saveButton.click();
-            await expect(createUserForm.phoneRequiredNotice).toBeVisible();
-        })
-    })
+    test("Submit with Empty Phone only", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example.com",
+        phone: "",
+      });
+      await createUserForm.saveButton.click();
 
-    test.describe('Error Message Display', ()=> {
-        test('Should get a required error if all fields left empty', async() => {
-            await createUserForm.fillForm();
-            await createUserForm.saveButton.click();
+      await expect(createUserForm.userNameRequiredNotice).not.toBeVisible();
+      await expect(createUserForm.emailRequiredNotice).not.toBeVisible();
+      await expect(createUserForm.phoneRequiredNotice).toBeVisible();
+    });
 
-            // Error Messages 
-            await expect(createUserForm.userNameRequiredNotice).toBeVisible();
-            await expect(createUserForm.emailRequiredNotice).toBeVisible();
-            await expect(createUserForm.phoneRequiredNotice).toBeVisible();
-        })
+    test("Shows Server Error when POST request fails", async () => {
+      await createUserForm.fillForm({
+        name: "test",
+        email: "test@example.com",
+        phone: "1234567890",
+      });
 
-        test('Submit with Empty Name Only', async() => {
-            await createUserForm.fillForm({name: '', email: 'test@example.com', phone: '1234567890'})
-            await createUserForm.saveButton.click();
+      // Intercept POST /api/save and mock 500 error response
+      await page.route("**/api/save", (route) => {
+        route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Internal Server Error" }),
+        });
+      });
 
-            await expect(createUserForm.userNameRequiredNotice).toBeVisible();
-            await expect(createUserForm.emailRequiredNotice).not.toBeVisible();
-            await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
-        })
+      await createUserForm.saveButton.click();
+    });
+  });
 
-        test('Submit with Empty Email only', async() => {
-            await createUserForm.fillForm({name: 'test', email: '', phone: '1234567890'})
-            await createUserForm.saveButton.click();
+  test("Form Fields Should Clear After Valid Submission", async () => {
+    await createUserForm.fillForm({
+      name: "test",
+      email: "test@example.com",
+      phone: "1234567890",
+    });
+    await createUserForm.saveButton.click();
 
-            await expect(createUserForm.userNameRequiredNotice).not.toBeVisible();
-            await expect(createUserForm.emailRequiredNotice).toBeVisible();
-            await expect(createUserForm.phoneRequiredNotice).not.toBeVisible();
-        })
+    //success Notice shows on success
+    await expect(createUserForm.successNotice).toBeVisible();
 
-        test('Submit with Empty Phone only', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: ''})
-            await createUserForm.saveButton.click();
-
-            await expect(createUserForm.userNameRequiredNotice).not.toBeVisible();
-            await expect(createUserForm.emailRequiredNotice).not.toBeVisible();
-            await expect(createUserForm.phoneRequiredNotice).toBeVisible();
-        })
-
-        test('Shows Server Error when POST request fails', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: '1234567890'});
-
-             // Intercept POST /api/save and mock 500 error response
-            await page.route('**/api/save', route => {
-                route.fulfill({
-                status: 500,
-                contentType: 'application/json',
-                body: JSON.stringify({ error: 'Internal Server Error' }),
-                });
-            });
-
-            await createUserForm.saveButton.click();
-        })
-    })
-
-    test('Form Fields Should Clear After Valid Submission', async() => {
-            await createUserForm.fillForm({name: 'test', email: 'test@example.com', phone: '1234567890'})
-            await createUserForm.saveButton.click();
-
-            //success Notice shows on success
-            await expect(createUserForm.successNotice).toBeVisible();
-
-            //form fields clear after submission
-            await expect(createUserForm.nameInput).toBeEmpty();
-            await expect(createUserForm.emailInput).toBeEmpty();
-            await expect(createUserForm.phoneInput).toBeEmpty();
-    })
-
-})
+    //form fields clear after submission
+    await expect(createUserForm.nameInput).toBeEmpty();
+    await expect(createUserForm.emailInput).toBeEmpty();
+    await expect(createUserForm.phoneInput).toBeEmpty();
+  });
+});

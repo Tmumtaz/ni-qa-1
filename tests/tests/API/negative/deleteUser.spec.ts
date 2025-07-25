@@ -1,6 +1,4 @@
 import { test, expect } from "@playwright/test";
-const db = require("../../../../api/database");
-import { generateUserData } from "../utils/helpers";
 
 test.describe("DELETE   ", () => {
   let apiContext;
@@ -15,7 +13,7 @@ test.describe("DELETE   ", () => {
     await apiContext.dispose();
   });
 
-  test("TC013 - Delete user with invalid ID", async () => {
+  test("NC-D-001 - Delete user with non-existent ID", async () => {
     const id = "abc";
     const response = await apiContext.delete(`/api/id/${id}`);
     const responseBody = await response.json();
@@ -25,7 +23,7 @@ test.describe("DELETE   ", () => {
     expect(response.status()).toBe(404);
   });
 
-  test("TC014- Delete User with non-existent ID", async () => {
+  test("NC-D-002 - Delete user with invalid ID format", async () => {
     const id = 99999;
     const response = await apiContext.delete(`/api/id/${id}`);
     const responseBody = await response.json();

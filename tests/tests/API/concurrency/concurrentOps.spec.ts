@@ -15,7 +15,7 @@ test.describe("Concurrent Operations", () => {
     await apiContext.dispose();
   });
 
-  test("Create same user concurrently", async () => {
+  test("CON-001 - Create same user concurrently", async () => {
     const user = generateUserData();
 
     const responses = await Promise.all([
@@ -28,7 +28,7 @@ test.describe("Concurrent Operations", () => {
     expect(statuses).toContain(400);
   });
 
-  test("Delete same user twice", async () => {
+  test("CON-002 - Delete same user twice", async () => {
     const user = generateUserData();
     const createRes = await apiContext.post("/api/save", { data: user });
     const created = await createRes.json();
@@ -40,7 +40,7 @@ test.describe("Concurrent Operations", () => {
     expect(del2.status()).toBe(404);
   });
 
-  test("GET user during creation", async () => {
+  test("CON-003 - GET user during creation", async () => {
     const user = generateUserData();
 
     const createPromise = apiContext.post("/api/save", { data: user });
@@ -52,7 +52,7 @@ test.describe("Concurrent Operations", () => {
     expect(getRes.ok()).toBeTruthy();
   });
 
-  test("GET user list during add/delete operations", async () => {
+  test("CON-004 - GET user list during add/delete operations", async () => {
     const users = Array.from({ length: 5 }, () => generateUserData());
 
     const ops = users.map((user) =>

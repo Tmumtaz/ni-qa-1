@@ -15,7 +15,7 @@ test.describe("POST", () => {
     await apiContext.dispose();
   });
 
-  test("Create user with existing username", async () => {
+  test("NC-P-001 - Create user with existing username", async () => {
     const Database = require("../../../../api/database");
     const db = new Database();
 
@@ -38,7 +38,7 @@ test.describe("POST", () => {
     expect(response.status()).toBe(400);
   });
 
-  test("Create user with existing email", async () => {
+  test("NC-P-002 - Create user with existing email", async () => {
     const Database = require("../../../../api/database");
     const db = new Database();
 
@@ -60,7 +60,7 @@ test.describe("POST", () => {
     expect(response.status()).toBe(400);
   });
 
-  test("Missing username", async () => {
+  test("NC-P-003 - Missing username", async () => {
     const user = generateUserData();
     const duplicateUser = {
       email: user.email,
@@ -78,7 +78,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   });
 
-  test("Missing Email", async () => {
+  test("NC-P-004 - Missing Email", async () => {
     const user = generateUserData();
     const duplicateUser = {
       name: user.fullName,
@@ -96,7 +96,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   });
 
-  test("Missing Phone", async () => {
+  test("NC-P-005 - Missing Phone", async () => {
     const user = generateUserData();
     const duplicateUser = {
       name: user.fullName,
@@ -114,7 +114,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   });
 
-  test('Null fields', async () => {
+  test('NC-P-006 -Null fields', async () => {
     const nullUser = {
       name: null,
       email: null,
@@ -132,7 +132,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   });
 
-  test('Extra Field set to null', async () => {
+  test('NC-P-007 - Extra Field set to null', async () => {
     const user = generateUserData();
     const sampleUser = {
       name: user.fullName,
@@ -152,7 +152,45 @@ test.describe("POST", () => {
     
   })
 
-  test('Leading spaces', async() => {
+  test('NC-P-008 - Empty String Fields', async() => {
+    const nullUser = {
+      name: " ",
+      email: " ",
+      phone: " ",
+    };
+
+    const response = await apiContext.post("/api/save", {
+      data: nullUser,
+    });
+
+    expect(response.status()).toBe(400);
+
+    const responseBody = await response.json();
+    const errorMessage = responseBody.err;
+    expect(errorMessage).toBe("Missing information");
+  })
+
+   test('NC-P-009 - Extra Fields', async() => {
+    const userdata = generateUserData();
+    const user = {
+      name: userdata.fullName,
+      email: userdata.email,
+      phone: userdata.phone,
+      extraField: "Extra Field"
+    };
+
+    const response = await apiContext.post("/api/save", {
+      data: user,
+    });
+
+    expect(response.status()).toBe(400);
+
+    const responseBody = await response.json();
+    const errorMessage = responseBody.err;
+    expect(errorMessage).toBe("Missing information");
+  })
+
+  test('NC-P-010 - Leading spaces', async() => {
     const user = generateUserData();
     const sampleUser = {
       name: "   " + user.fullName,
@@ -169,7 +207,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   })
 
-  test('Undefined fields', async () => {
+  test('NC-P-011 - Undefined fields', async () => {
     const nullUser = {
       name: undefined,
       email: undefined,
@@ -187,7 +225,7 @@ test.describe("POST", () => {
     expect(errorMessage).toBe("Missing information");
   });
 
-  test('XXS Attempt', async () => {
+  test('NC-P-012 -XXS Attempt', async () => {
     const user = generateUserData();
     const sampleUser = {
       name: "<script>alert('XSS')</script>" + user.fullName,

@@ -15,7 +15,7 @@ test.describe("DELETE", () => {
     await apiContext.dispose();
   });
 
-  test("TC004 - Delete User by Valid Id", async () => {
+  test("PC-D-001 - Delete User by Valid Id", async () => {
     // Create a new user first to delete
     const user = generateUserData();
     const createResponse = await apiContext.post("/api/save", { data: user });

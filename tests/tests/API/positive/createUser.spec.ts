@@ -15,7 +15,7 @@ test.describe("POST", () => {
     await apiContext.dispose();
   });
 
-  test("TC001 - Create User With Valid Data", async () => {
+  test("PC-C-001 - Create User With Valid Data", async () => {
     const user = generateUserData();
 
     const response = await apiContext.post("/api/save", {

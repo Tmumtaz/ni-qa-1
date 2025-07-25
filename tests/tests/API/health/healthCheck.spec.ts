@@ -14,7 +14,7 @@ test.describe("Health Check", () => {
     await apiContext.dispose();
   });
 
-   test("TC005 - Health Check", async () => {
+   test("PC-HC-001 - Health Check", async () => {
     const response = await apiContext.get("/health");
     expect(response.status()).toBe(200);
 
