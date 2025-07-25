@@ -194,19 +194,19 @@ The frontend was updated to communicate with the local API instead of AWS servic
   - tests/UI: UI behavior and validation tests
   - tests/e2e: End-to-end flow tests across UI and API
 
-  ## Open Playwright Test Reporter
+  ### Open Playwright Test Reporter
   - npx playwright show-report
 
-  ## Run All Tests
+  ### Run All Tests
   - npx playwright test
 
-  ## API Tests (Configured to run in Chrome only)
+  ### API Tests (Configured to run in Chrome only)
   - npx playwright test tests/API
 
-  ## UI Tests
+  ### UI Tests
   - npx playwright test tests/UI
 
-  ## End-to-End Tests
+  ### End-to-End Tests
   - npx playwright test tests/e2e 
 
   ## Configuration Options 
