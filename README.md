@@ -186,3 +186,43 @@ This project was migrated from:
 - AWS API Gateway → Local Express server
 
 The frontend was updated to communicate with the local API instead of AWS services.
+
+
+# Running Tests
+  - This project uses Playwright for both API and UI testing. The test files are organized into the following folders:
+  - tests/API: API-level integration and edge-case tests
+  - tests/UI: UI behavior and validation tests
+  - tests/e2e: End-to-end flow tests across UI and API
+
+  ## Open Playwright Test Reporter
+  - npx playwright show-report
+
+  ## Run All Tests
+  - npx playwright test
+
+  ## API Tests (Configured to run in Chrome only)
+  - npx playwright test tests/API
+
+  ## UI Tests
+  - npx playwright test tests/UI
+
+  ## End-to-End Tests
+  - npx playwright test tests/e2e 
+
+  ## Configuration Options 
+  ### Run Specific Browser 
+  - npx playwright test --project=chromium
+  - npx playwright test --project=firefox
+  - npx playwright test --project=webkit
+
+  ### Run in Headed Mode (debugging)
+  - npx playwright test --headed
+
+
+
+
+
+
+
+
+
